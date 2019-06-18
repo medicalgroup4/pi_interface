@@ -109,7 +109,7 @@ def on_stop_clicked():
 
 
 init()
-window.show()
+window.showFullScreen()
 btnStart.clicked.connect(on_start_clicked)
 btnStop.clicked.connect(on_stop_clicked)
 
