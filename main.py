@@ -7,6 +7,23 @@ mqtt = MQTT(ip="51.83.42.157", port=1883, qos=2, mode=Message_mode.NON_BLOCKING)
 
 app = QApplication([])
 
+def message_callback(topic, measurement):
+    print("Received message from patient \"%s\" on topic \"%s\"" % (measurement, topic))
+    systolic = measurement.systolic
+    diastolic = measurement.diastolic
+    heartrate = measurement.heartrate
+    oxygen = measurement.oxygen
+
+    lblSysVal.setText(str(systolic))
+    lblDiaVal.setText(str(diastolic))
+    lblHeartVal.setText(str(heartrate))
+    lblOxyVal.setText(str(oxygen))
+
+
+mqtt.message_callback = message_callback
+mqtt.sub_to_topic('database/measurement')
+mqtt.connect()
+
 # Saxion image
 lblSaxPic = QLabel()
 
@@ -101,23 +118,6 @@ def on_stop_clicked():
     message = 'stop'
     mqtt.publish_string('measurement/control', message)
 
-
-def message_callback(topic, measurement):
-    print("Received message from patient \"%s\" on topic \"%s\"" % (measurement, topic))
-    systolic = measurement.systolic
-    diastolic = measurement.diastolic
-    heartrate = measurement.heartrate
-    oxygen = measurement.oxygen
-
-    lblSysVal.setText(str(systolic))
-    lblDiaVal.setText(str(diastolic))
-    lblHeartVal.setText(str(heartrate))
-    lblOxyVal.setText(str(oxygen))
-
-
-mqtt.message_callback = message_callback
-mqtt.sub_to_topic('database/measurement')
-mqtt.connect()
 
 init()
 window.showFullScreen()
