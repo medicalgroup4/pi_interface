@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QPushButton, QGridLayout
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
-from PiSerial import *
+from MQTT import *
 
-serialcon = PiSerial()
+mqtt = MQTT(ip="51.83.42.157", port=1883, qos=2, mode=Message_mode.NON_BLOCKING)
+
 app = QApplication([])
 
 # Saxion image
@@ -60,8 +61,6 @@ window = QWidget()
 window.resize(640, 480)
 layout = QGridLayout()
 
-meter = PiSerial()
-
 def init():
 
     layout.addWidget(btnOk, 0, 0)
@@ -94,23 +93,40 @@ def update():
 
 
 def on_start_clicked():
+    message = 'start'
+    mqtt.publish_string('measurement/control', message)
 
-    global meter
-    state = meter.start()
-
-    if state is 'STARTED':
-        meter.listen()
 
 def on_stop_clicked():
+    message = 'stop'
+    mqtt.publish_string('measurement/control', message)
 
-    global meter
-    meter.stop()
+
+def message_callback(topic, measurement):
+    print("Received message from patient \"%s\" on topic \"%s\"" % (measurement, topic))
+    systolic = measurement.systolic
+    diastolic = measurement.diastolic
+    heartrate = measurement.heartrate
+    oxygen = measurement.oxygen
+
+    lblSysVal.setText(str(systolic))
+    lblDiaVal.setText(str(diastolic))
+    lblHeartVal.setText(str(heartrate))
+    lblOxyVal.setText(str(oxygen))
 
 
+mqtt.message_callback = message_callback
+mqtt.sub_to_topic('database/measurement')
+mqtt.connect()
 
 init()
 window.showFullScreen()
 btnStart.clicked.connect(on_start_clicked)
 btnStop.clicked.connect(on_stop_clicked)
 
+
 app.exec()
+
+
+
+
