@@ -3,7 +3,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from MQTT import *
 
-mqtt = MQTT(ip="51.83.42.157", port=1883, qos=2, mode=Message_mode.NON_BLOCKING)
+mqtt = MQTT(ip="localhost", port=1883, qos=2, mode=Message_mode.NON_BLOCKING)
 
 app = QApplication([])
 
